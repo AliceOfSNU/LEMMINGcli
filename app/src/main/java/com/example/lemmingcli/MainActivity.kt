@@ -35,16 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
-//    private lateinit var btnGenerate: Button
-//    private lateinit var btnPrev: Button
-//    private lateinit var btnNext: Button
-    private lateinit var wordText: TextView
-    private lateinit var sentText: TextView
 
-    private var wordList = arrayListOf<String>("手放す", "締める", "閉じる", "当てる")
-    private var cardList = arrayListOf<Card>()
-    private var cardidx = -1
-    private var wordidx = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,85 +72,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        //should go into sentence frag
-//        wordText = findViewById(R.id.word_text)
-//        sentText = findViewById(R.id.sent_text)
-//
-//        Log.d("MAIN", cardList.size.toString())
-//        Log.d("MAIN", wordList.size.toString())
-//
-//        // first word!
-//        getSentence(wordList[0])
-//        binding.next.setOnClickListener(
-//            View.OnClickListener {
-//                if (cardidx >= cardList.size - 1 && wordidx + 1 < wordList.size) {
-//                    // create more on reaching end of already created cards
-//                    getSentence(wordList[++wordidx])
-//                }
-//                else if(cardidx + 1 < cardList.size){
-//                    showCard(cardList[++cardidx])
-//                }
-//            }
-//        )
     }
 
-    private fun showCard(card: Card){
-        wordText.text = card.word
-        val spantext = SpannableString(card.sentence)
-        val furicolor = ContextCompat.getColor(this, android.R.color.holo_red_dark)
-        for (idx in 0 until card.furiganas.size){
-            val f: Furigana = card.furiganas[idx]
-            val replacementSpan = FuriganaReplacementSpan(f.yomi, furicolor)
-            spantext.setSpan(replacementSpan, f.start, f.end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        sentText.text = spantext
-    }
-
-
-    private fun getSentence(word: String){
-        val generationEp = "http://86.127.246.87:22513/generate_sentences"
-        val queue = Volley.newRequestQueue(this@MainActivity)
-        val reqObj = JSONObject()
-        reqObj.put("word", word)
-        val request =
-            JsonObjectRequest(
-                Request.Method.POST, generationEp,
-                reqObj,
-                {
-                    response ->
-                    val sentences = response.getJSONArray("sentences")
-                    val furiganas: JSONArray = response.getJSONArray("furiganas")
-                    val dictforms: JSONArray = response.getJSONArray("dictforms")
-                    for(i in 0 until sentences.length()){
-                        Log.d("MAIN", sentences.getString(i))
-                        val fl:JSONArray = furiganas.getJSONArray(i)
-                        val dl:JSONArray = dictforms.getJSONArray(i)
-                        val furiganaList = ArrayList<Furigana>()
-                        val dictformList = ArrayList<Dictform>()
-
-                        for(fidx in 0 until fl.length()) {
-                            val f:JSONArray = fl.getJSONArray(fidx)
-                            val w: String = f.getString(0)
-                            furiganaList.add(Furigana(word=w, yomi=f.getString(1), start=f.getInt(2), end=f.getInt(2)+w.length))
-                        }
-
-                        for(didx in 0 until dl.length()){
-                            val d:JSONArray = dl.getJSONArray(didx)
-                            val w:String = d.getString(0)
-                            dictformList.add(Dictform(word=w, dictform = d.getString(1), start=d.getInt(2), end=d.getInt(2)+w.length))
-                        }
-                        cardList.add(Card(word, sentences.getString(i), furiganaList, dictformList))
-                    }
-                    if(cardidx+1 < cardList.size){
-                        showCard(cardList[++cardidx])
-                    }
-                },
-                {
-                    error -> sentText.text = error.toString()
-                }
-            )
-        queue.add(request)
-    }
 //
 //    override fun onClick(v: View?){
 //        var result = ""
